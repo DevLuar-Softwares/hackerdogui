@@ -470,121 +470,144 @@
 									<div class="elementor-widget-container">
 										<script>
 											document.addEventListener('DOMContentLoaded', function () {
-												var button = document.getElementById('botao-gerador');
-												var iconContainers = document.querySelectorAll('.elementor-icon'); // Selecionar os containers dos ícones (25 no total)
-												var originalIconClasses = []; // Armazenar as classes originais dos ícones
-												var widget4 = document.getElementById('porcentagem');
+	var button = document.getElementById('botao-gerador');
+	var iconContainers = document.querySelectorAll('.elementor-icon'); // Selecionar os containers dos ícones (25 no total)
+	var originalIconClasses = []; // Armazenar as classes originais dos ícones
+	var widget4 = document.getElementById('porcentagem');
 
-												var cooldown = 40; // Tempo de espera em segundos (1 minuto)
-												var countingDown = false;
-												var interval; // Armazena o intervalo do countdown
+	var cooldown = 40; // Tempo de espera em segundos (1 minuto)
+	var countingDown = false;
+	var interval; // Armazena o intervalo do countdown
 
-												// Armazena as classes originais dos ícones
-												iconContainers.forEach(function (container) {
-													var icon = container.querySelector('i');
-													originalIconClasses.push(icon.className);
-												});
+	// Armazena as classes originais dos ícones
+	iconContainers.forEach(function (container) {
+		var icon = container.querySelector('i');
+		originalIconClasses.push(icon.className);
+	});
 
-												// Matriz de controle (1 = estrela, 0 = ícone original), cada matriz define o estado de 25 ícones
-												var iconMatrixArray = [
-													[
-														0, 0, 0, 0, 0,
-														0, 0, 1, 0, 0,
-														0, 1, 0, 0, 0,
-														1, 0, 0, 0, 0,
-														0, 1, 0, 0, 0,
-													],
-													[
-														0, 0, 0, 0, 0,
-														0, 1, 0, 0, 0,
-														0, 0, 1, 0, 0,
-														0, 0, 0, 1, 0,
-														0, 0, 1, 0, 0,
-													],
-													
-													[
-														0, 0, 0, 0, 0,
-														0, 0, 1, 0, 0,
-														0, 0, 0, 1, 0,
-														0, 0, 0, 0, 1,
-														0, 0, 0, 1, 0,
-													],
-													
-													[
-														0, 0, 0, 0, 0,
-														0, 0, 0, 1, 0,
-														0, 0, 1, 0, 0,
-														0, 1, 0, 0, 0,
-														0, 0, 1, 0, 0,
-													],
-												];
+	// Matriz de controle (1 = estrela, 0 = ícone original), cada matriz define o estado de 25 ícones
+	var iconMatrixArray = [
+		[
+			0, 0, 0, 0, 0,
+			0, 0, 1, 0, 0,
+			0, 1, 0, 0, 0,
+			1, 0, 0, 0, 0,
+			0, 1, 0, 0, 0,
+		],
+		[
+			0, 0, 0, 0, 0,
+			0, 1, 0, 0, 0,
+			0, 0, 1, 0, 0,
+			0, 0, 0, 1, 0,
+			0, 0, 1, 0, 0,
+		],
+		[
+			0, 0, 0, 0, 0,
+			0, 0, 1, 0, 0,
+			0, 0, 0, 1, 0,
+			0, 0, 0, 0, 1,
+			0, 0, 0, 1, 0,
+		],
+		[
+			0, 0, 0, 0, 0,
+			0, 0, 0, 1, 0,
+			0, 0, 1, 0, 0,
+			0, 1, 0, 0, 0,
+			0, 0, 1, 0, 0,
+		],
+	];
 
-												// Adicionar elemento de áudio ao DOM
-												var audioElement = document.createElement('audio');
-												audioElement.src = 'https://appgebe.com/wp-content/uploads/2024/03/Gameplay-Strike-Hit-02.wav'; // Insira o caminho do seu arquivo de áudio
-												audioElement.setAttribute('id', 'sound');
-												document.body.appendChild(audioElement);
+	// Adicionar elemento de áudio ao DOM
+	var audioElement = document.createElement('audio');
+	audioElement.src = 'https://appgebe.com/wp-content/uploads/2024/03/Gameplay-Strike-Hit-02.wav'; // Insira o caminho do seu arquivo de áudio
+	audioElement.setAttribute('id', 'sound');
+	document.body.appendChild(audioElement);
 
-												function playSound() {
-													var sound = document.getElementById('sound');
-													sound.play();
-												}
+	function playSound() {
+		var sound = document.getElementById('sound');
+		sound.play();
+	}
 
-												function startCooldown(selectedMatrix) {
-													countingDown = true;
-													button.disabled = true;
-													button.style.opacity = '0.5'; // Aplica opacidade ao botão
+	// Função para gerar uma matriz aleatória com 3 a 5 números 1
+	function generateRandomMatrix() {
+		var matrix = new Array(25).fill(0); // Preenche a matriz com 0
+		var onesCount = Math.floor(Math.random() * (5 - 3 + 1)) + 3; // Escolhe entre 3 e 5 números 1
 
-													// Gera porcentagem aleatória entre 93 e 99
-													var porcentagem = (Math.random() * (99 - 93) + 93).toFixed(2) + "%";
-													widget4.innerHTML = porcentagem;
+		// Coloca os números 1 em posições aleatórias
+		while (onesCount > 0) {
+			var randomIndex = Math.floor(Math.random() * 25);
+			if (matrix[randomIndex] === 0) {
+				matrix[randomIndex] = 1;
+				onesCount--;
+			}
+		}
 
-													// Mudar os ícones de acordo com a matriz passada
-													iconContainers.forEach(function (container, index) {
-														var icon = container.querySelector('i');
-														if (selectedMatrix[index] === 1) {
-															container.innerHTML = '<i class="fa fa-star" style="color: #ffffff;"></i>'; // Altera o ícone para "star" e define a cor como branco
-															container.style.backgroundColor = '#fc9b0e'; // Define o background como #fc9b0e
-														} else {
-															container.innerHTML = '<i class="' + originalIconClasses[index] + '"></i>'; // Mantém o ícone original
-															container.style.backgroundColor = ''; // Remove o background personalizado
-														}
-													});
+		return matrix;
+	}
 
-													var remainingTime = cooldown;
+	function startCooldown(selectedMatrix) {
+		countingDown = true;
+		button.disabled = true;
+		button.style.opacity = '0.5'; // Aplica opacidade ao botão
 
-													// Função para atualizar o countdown
-													function updateCountdown() {
-														button.innerHTML = "Aguarde: " + remainingTime + "s";
-														remainingTime--;
-														if (remainingTime < 0) {
-															clearInterval(interval);
-															countingDown = false;
-															button.innerHTML = "Gerar novo sinal";
-															button.disabled = false;
-															button.style.opacity = '1'; // Restaura a opacidade do botão
+		// Gera porcentagem aleatória entre 93 e 99
+		var porcentagem = (Math.random() * (99 - 93) + 93).toFixed(2) + "%";
+		widget4.innerHTML = porcentagem;
 
-															// Restaura os ícones para o estado original
-															iconContainers.forEach(function (container, index) {
-																container.innerHTML = '<i class="' + originalIconClasses[index] + '"></i>';
-																container.style.backgroundColor = '';
-															});
-														}
-													}
+		// Mudar os ícones de acordo com a matriz passada
+		iconContainers.forEach(function (container, index) {
+			var icon = container.querySelector('i');
+			if (selectedMatrix[index] === 1) {
+				container.innerHTML = '<i class="fa fa-star" style="color: #ffffff;"></i>'; // Altera o ícone para "star" e define a cor como branco
+				container.style.backgroundColor = '#fc9b0e'; // Define o background como #fc9b0e
+			} else {
+				container.innerHTML = '<i class="' + originalIconClasses[index] + '"></i>'; // Mantém o ícone original
+				container.style.backgroundColor = ''; // Remove o background personalizado
+			}
+		});
 
-													updateCountdown(); // Chama a função uma vez para atualizar imediatamente
-													interval = setInterval(updateCountdown, 1000);
-												}
+		var remainingTime = cooldown;
 
-												button.addEventListener('click', function () {
-													if (!countingDown) {
-														// Seleciona uma matriz aleatória
-														var selectedMatrix = iconMatrixArray[Math.floor(Math.random() * iconMatrixArray.length)];
-														startCooldown(selectedMatrix);
-														playSound(); // Toca o som quando o botão é pressionado
-													}
-												});
-											});
+		// Função para atualizar o countdown
+		function updateCountdown() {
+			button.innerHTML = "Aguarde: " + remainingTime + "s";
+			remainingTime--;
+			if (remainingTime < 0) {
+				clearInterval(interval);
+				countingDown = false;
+				button.innerHTML = "Gerar novo sinal";
+				button.disabled = false;
+				button.style.opacity = '1'; // Restaura a opacidade do botão
+
+				// Restaura os ícones para o estado original
+				iconContainers.forEach(function (container, index) {
+					container.innerHTML = '<i class="' + originalIconClasses[index] + '"></i>';
+					container.style.backgroundColor = '';
+				});
+			}
+		}
+
+		updateCountdown(); // Chama a função uma vez para atualizar imediatamente
+		interval = setInterval(updateCountdown, 1000);
+	}
+
+	button.addEventListener('click', function () {
+		if (!countingDown) {
+			var selectedMatrix;
+
+			// 50% de chance de pegar uma matriz predefinida ou gerar uma matriz aleatória
+			if (Math.random() < 0.5) {
+				selectedMatrix = iconMatrixArray[Math.floor(Math.random() * iconMatrixArray.length)];
+			} else {
+				selectedMatrix = generateRandomMatrix();
+			}
+
+			startCooldown(selectedMatrix);
+			playSound(); // Toca o som quando o botão é pressionado
+		}
+	});
+});
+
 										</script>
 
 									</div>
